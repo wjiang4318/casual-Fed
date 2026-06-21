@@ -1,0 +1,69 @@
+{
+  "nodes": [
+  { "id": "fed_funds_rate", "label": "Fed Funds Rate", "layer": 1 },
+  { "id": "yield_2y",       "label": "2Y Treasury Yield", "layer": 2 },
+  { "id": "yield_10y",      "label": "10Y Treasury Yield", "layer": 2 },
+  { "id": "dxy",            "label": "DXY (Dollar Index)", "layer": 3 },
+  { "id": "sp500",          "label": "S&P 500", "layer": 4 },
+  { "id": "mortgage_30y",   "label": "Mortgage 30Y", "layer": 4 }
+]
+,
+  "edges": [
+  {
+    "from": "fed_funds_rate",
+    "to": "yield_2y",
+    "sign": "+",
+    "lag_days": 0,
+    "confidence": 0.9,
+    "explanation": "2Y yield tracks expected short-term rates almost immediately. Fed hikes → market prices higher rates for next 2 years → 2Y rises."
+  },
+  {
+    "from": "fed_funds_rate",
+    "to": "yield_10y",
+    "sign": "+",
+    "lag_days": 1,
+    "confidence": 0.65,
+    "explanation": "10Y rises with hikes but less reliably — it also reflects long-run growth and inflation expectations beyond Fed control."
+  },
+  {
+    "from": "fed_funds_rate",
+    "to": "dxy",
+    "sign": "+",
+    "lag_days": 1,
+    "confidence": 0.75,
+    "explanation": "Higher US rates attract foreign capital into US assets, increasing demand for USD."
+  },
+  {
+    "from": "fed_funds_rate",
+    "to": "sp500",
+    "sign": "-",
+    "lag_days": 0,
+    "confidence": 0.85,
+    "explanation": "Stocks reprice instantly on FOMC announcements — sentiment and forward guidance hit markets within seconds."
+  },
+  {
+    "from": "yield_10y",
+    "to": "sp500",
+    "sign": "-",
+    "lag_days": 2,
+    "confidence": 0.8,
+    "explanation": "Higher 10Y = higher discount rate. Stock price = Earnings / Discount Rate, so rising 10Y compresses valuations."
+  },
+  {
+    "from": "yield_10y",
+    "to": "mortgage_30y",
+    "sign": "+",
+    "lag_days": 3,
+    "confidence": 0.9,
+    "explanation": "30Y mortgage rates are benchmarked directly to the 10Y Treasury. They move in lockstep with a short lag."
+  },
+  {
+    "from": "dxy",
+    "to": "sp500",
+    "sign": "-",
+    "lag_days": 3,
+    "confidence": 0.65,
+    "explanation": "Stronger dollar hurts S&P 500 multinationals — foreign revenues translate back to fewer dollars."
+  }
+]
+}
