@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, DateTime
+from sqlalchemy import Column, Integer, String, Float, DateTime, Date
 from sqlalchemy.orm import DeclarativeBase
 
 
@@ -27,7 +27,7 @@ class Base(DeclarativeBase):
 class Meeting(Base):
     __tablename__ = "meetings"
     id = Column(Integer, primary_key=True) # each column(...) defines a column in the table, specifying the python attribute name, data type, and optional constraints
-    date = Column(String) # date will be known when parsing so we can pass date in as a separate argument when writing it ot the DB. WIll be a string for now "20260617"
+    date = Column(Date, unique=True) # date will be known when parsing and converted to datetime via python
     decision = Column(String)
     magnitude_bps = Column(Integer)
     tone = Column(String)

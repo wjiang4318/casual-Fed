@@ -42,6 +42,22 @@
     "explanation": "Stocks reprice instantly on FOMC announcements — sentiment and forward guidance hit markets within seconds."
   },
   {
+    "from": "yield_2y",
+    "to": "yield_10y",
+    "sign": "+",
+    "lag_days": 0,
+    "confidence": 0.8,
+    "explanation": "Expectations hypothesis of the yield curve: the 10Y reflects the market's average expected path of short-term rates, so 2Y repricing (near-term Fed expectations) feeds into the 10Y almost immediately, alongside the 10Y's independent term-premium/growth component."
+  },
+  {
+    "from": "yield_2y",
+    "to": "dxy",
+    "sign": "+",
+    "lag_days": 1,
+    "confidence": 0.7,
+    "explanation": "Uncovered interest rate parity: currency markets are forward-looking, so capital flows respond to expected future rate differentials. The 2Y yield is a cleaner proxy for near-term rate expectations than the spot Fed Funds Rate, making it a driver of USD demand."
+  },
+  {
     "from": "yield_10y",
     "to": "sp500",
     "sign": "-",
