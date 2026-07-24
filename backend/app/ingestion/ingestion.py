@@ -33,7 +33,9 @@ def ingest_meeting(date: str):
             tone_confidence=extracted_info.tone_confidence,
             statement_text=statement,
             created_at=get_current_utc_time(),
-            statement_diff_json = diff_result
+            statement_diff_json=diff_result,
+            is_rate_decision=extracted_info.is_rate_decision,
+            dissenters=[d.model_dump() for d in extracted_info.dissenters]
         )
             session.add(meeting) # knows to add to meeting because Meeting class has __tablename__ = "meetings" defined in the model:
             session.commit()
@@ -44,6 +46,17 @@ def ingest_meeting(date: str):
             raise e
         finally:
             session.close()
+
+def backfill_diffs():
+    session = SessionLocal()
+    meetings = session.query(Meeting).order_by(Meeting.date).all()
+    for i in range(1, len(meetings)):
+        prior = meetings[i - 1]
+        current = meetings[i]
+        if current.statement_diff_json is None:
+            current.statement_diff_json = diff_statements(prior.statement_text, current.statement_text)
+    session.commit()
+    session.close()
 
 if __name__ == "__main__":
     print(ingest_meeting("20260617"))

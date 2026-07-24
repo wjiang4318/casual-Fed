@@ -14,7 +14,12 @@ MODEL = "claude-sonnet-4-6"
 
 SYSTEM_PROMPT = '''You are an expert monetary policy analyst specializing in Federal Reserve communications.
 
-    Your task is to extract structured data from an FOMC statement.
+    Your task is to extract structured data from an FOMC press release.
+
+    IMPORTANT: not every press release is a rate-decision statement. Some announce other Committee
+    business instead (e.g., updates to the Fed's longer-run policy framework/strategy statement).
+    You must first decide whether this document is actually a rate-decision statement before
+    extracting anything else.
 
     Definitions:
     - hawkish: language emphasizing inflation concerns, suggesting rates may rise or stay high, prioritizing price stability over growth
@@ -22,13 +27,36 @@ SYSTEM_PROMPT = '''You are an expert monetary policy analyst specializing in Fed
     - neutral: balanced language with no clear directional bias
 
     Extract the following:
-    - decision: the rate decision made. Must be exactly one of: "hike", "hold", "cut"
-    - magnitude_bps: the change in basis points as an integer. 0 if hold, positive if hike, positive if cut (e.g. 25 for a 25bps cut)
-    - tone: the overall tone of the statement. Must be exactly one of: "hawkish", "dovish", "neutral"
-    - tone_confidence: your confidence in the tone classification as a float between 0.0 and 1.0
+    - is_rate_decision: true if this document announces an actual federal funds rate decision
+      (hike/hold/cut). false if it's about something else entirely.
+    - decision: the rate decision made. Must be exactly one of: "hike", "hold", "cut".
+      Only set this if is_rate_decision is true — otherwise it must be null.
+    - magnitude_bps: the change in basis points as an integer. 0 if hold, positive if hike, positive if cut (e.g. 25 for a 25bps cut).
+      Only set this if is_rate_decision is true — otherwise it must be null.
+    - tone: the overall tone of the statement. Must be exactly one of: "hawkish", "dovish", "neutral".
+      Only set this if is_rate_decision is true — otherwise it must be null.
+    - tone_confidence: your confidence in the tone classification as a float between 0.0 and 1.0.
+      Only set this if is_rate_decision is true — otherwise it must be null.
+    - dissenters: a list of Committee members who voted against the decision, if any. Look for a
+      sentence near the end of the statement starting with "Voting against this action were...".
+      If there is no such sentence, return an empty list. For each dissenter, extract:
+        - name: the member's name, exactly as written in the statement
+        - preferred_action: classify their stated reason as exactly one of:
+          - "more_dovish": they wanted a rate cut, a bigger cut, or more accommodation than the
+            majority decided (e.g., "preferred to lower the target range")
+          - "more_hawkish": they wanted a rate hike, a smaller cut, or less accommodation than the
+            majority decided
+          - "procedural": their disagreement was about the statement's language or framing rather
+            than the rate decision itself, or the reason given is unclear or ambiguous. When in
+            doubt between the three categories, use "procedural".
 
-    Return ONLY a valid JSON object with exactly these four fields. No explanation, no markdown, no code blocks. Example:
-    {"decision": "hold", "magnitude_bps": 0, "tone": "hawkish", "tone_confidence": 0.8}
+    Return ONLY a valid JSON object with exactly these six fields. No explanation, no markdown, no code blocks.
+
+    Example (normal rate decision, one dovish dissent):
+    {"is_rate_decision": true, "decision": "hold", "magnitude_bps": 0, "tone": "hawkish", "tone_confidence": 0.8, "dissenters": [{"name": "Michelle W. Bowman", "preferred_action": "more_dovish"}]}
+
+    Example (not a rate decision at all):
+    {"is_rate_decision": false, "decision": null, "magnitude_bps": null, "tone": null, "tone_confidence": null, "dissenters": []}
     '''
 
 MAX_ATTEMPTS = 2

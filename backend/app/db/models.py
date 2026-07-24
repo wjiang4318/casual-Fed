@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, DateTime, Date, JSON
+from sqlalchemy import Column, Integer, String, Float, DateTime, Date, JSON, Boolean
 from sqlalchemy.orm import DeclarativeBase
 
 
@@ -35,3 +35,5 @@ class Meeting(Base):
     statement_text = Column(String)
     created_at = Column(DateTime)
     statement_diff_json = Column(JSON)
+    is_rate_decision = Column(Boolean)
+    dissenters = Column(JSON)
